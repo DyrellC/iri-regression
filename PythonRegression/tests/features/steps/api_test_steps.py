@@ -90,7 +90,7 @@ def threaded_call(step,apiCall,node):
 
 @step(r'we wait (\d+) seconds')
 def wait_for_step(step,time):
-    logger.debug('Waiting for {} seconds'.format(time))
+    logger.info('Waiting for {} seconds'.format(time))
     sleep(int(time))
 
 

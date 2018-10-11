@@ -174,6 +174,8 @@ Feature: Test API calls on Machine 1
 		Then "interruptAttachingToTangle" is called in parallel on "nodeA" with:
 		|keys                   |values				|type           |
 
+		And we wait 1 seconds
+
         # Do not include duration in the return expectations as it will always return a variable amount
 		Then the "attachToTangle" parallel call should return with:
 		|keys                   |values         |type           |
