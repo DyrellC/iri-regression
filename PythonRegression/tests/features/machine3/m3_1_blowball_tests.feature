@@ -9,7 +9,7 @@ Feature: Test GTTA for blowballs
 		Given GTTA is called 1000 times on all nodes
 		And find transaction is called with the address: 
 		"""
-		EFPNKGPCBXXXLIBYFGIGYBYTFFPIOQVNNVVWTTIYZO9NFREQGVGDQQHUUQ9CLWAEMXVDFSSMOTGAHVIBH
+		BTCAAFIH9CJIVIMWFMIHKFNWRTLJRKSTMRCVRE9CIP9AEDTOULVFRHQZT9QAQBZXXAZGBNMVOOKTKAXTB
 		""" 
 		#Insert your testnet coordinator address above
 		Then the returned GTTA transactions will be compared with the milestones
