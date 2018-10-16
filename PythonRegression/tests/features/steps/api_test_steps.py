@@ -68,13 +68,13 @@ def threaded_call(step,apiCall, node):
     api_utils.prepare_options(arg_list, options)
     api = api_utils.prepare_api_call(node)
 
-    def make_call(api,options,responses):
-        response = api_utils.fetch_call(apiCall, api, options)
-        responses[apiCall] = {}
-        responses[apiCall][node] = response
+    def make_call(node, arg_list):
+        response = api_utils.fetch_call(apiCall, arg_list['api'], arg_list['options'])
+        arg_list['responses'][apiCall] = {}
+        arg_list['responses'][apiCall][node] = response
         return response
 
-    args = (api,options,world.responses)
+    args = {node: {'api': api,'options': options,'responses': world.responses}}
     new_thread = pool.start_pool(make_call,1,args)
 
     if 'threads' not in world.config:
@@ -91,10 +91,11 @@ def wait_for_step(step,time):
 def compare_thread_return(step,apiCall):
     #Prepare response list for comparison
     logger.debug(world.responses)
-
     threads = world.config['threads'][apiCall]
+
     for thread in threads:
         response_list = pool.fetch_results(thread,1)
+
         #Exclude duration from response list
         if 'duration' in response_list:
             del response_list['duration']

@@ -21,7 +21,7 @@ def start_pool(function,iterations,args):
 def fetch_results(future_result, timeout):
     try:
         response = future_result.get(timeout)
-        logger.debug(response)
+        logger.debug('Response: {}'.format(response))
         return response
     except Exception as e:
         logger.debug(e)
