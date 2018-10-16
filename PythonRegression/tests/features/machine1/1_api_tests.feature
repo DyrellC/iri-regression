@@ -169,12 +169,8 @@ Feature: Test API calls on Machine 1
 		|branch_transaction     |TEST_HASH		|staticValue    |
 		|min_weight_magnitude   |50			|int            |
 
-		And we wait 2 seconds
-
 		Then "interruptAttachingToTangle" is called in parallel on "nodeA" with:
 		|keys                   |values				|type           |
-
-		And we wait 1 seconds
 
         # Do not include duration in the return expectations as it will always return a variable amount
 		Then the "attachToTangle" parallel call should return with:
