@@ -122,7 +122,7 @@ def compare_thread_return(step,apiCall):
 
 
 #TODO: Break these functions down into utilities
-@step(r'GTTA is called (\d+) times')
+@step(r'GTTA is called (\d+) times on all nodes')
 def spam_call_gtta(step,numTests):
     start = time()
     node = next(iter(world.machine['nodes']))
