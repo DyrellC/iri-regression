@@ -1,20 +1,27 @@
 from multiprocessing.dummy import Pool
+import multiprocessing as mp
 import logging
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 def start_pool(function,iterations,args):
-    iteration_list = [int(iterations)]
-    pool = Pool(processes=4)
-    list_of_threads = {pool.apply_async(function,args): iteration for iteration in iteration_list}
-    logger.info(list_of_threads)
-    return list_of_threads
+    #Assigns the process worker pool to either the cpu count or the number of nodes for the call, whichever is lower
+    pool = Pool(processes=len(args) if len(args) <= mp.cpu_count() else mp.cpu_count())
+    future_results = []
+    iteration = 0
+    while iteration < int(iterations):
+        run_list = (node for node in args if iteration < int(iterations))
+        for node in run_list:
+            iteration += 1
+            arg_list = (node,args[node])
+            future_results.append(pool.apply_async(function,arg_list))
+    return future_results
 
 
-def fetch_results(id, timeout):
+def fetch_results(future_result, timeout):
     try:
-        response = id.get(timeout)
-        logger.info(response)
+        response = future_result.get(timeout)
+        logger.debug(response)
         return response
     except Exception as e:
-        logger.info(e)
+        logger.debug(e)
