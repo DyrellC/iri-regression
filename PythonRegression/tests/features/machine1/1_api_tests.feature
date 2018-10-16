@@ -169,8 +169,6 @@ Feature: Test API calls on Machine 1
 		|branch_transaction     |TEST_HASH		|staticValue    |
 		|min_weight_magnitude   |50			|int            |
 
-		And we wait 2 seconds
-
 		Then "interruptAttachingToTangle" is called in parallel on "nodeA" with:
 		|keys                   |values				|type           |
 

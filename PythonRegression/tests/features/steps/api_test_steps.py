@@ -3,9 +3,9 @@ from iota import ProposedTransaction,Address,Tag,TryteString,ProposedBundle,Tran
 
 from util import static_vals
 from util.test_logic import api_test_logic as api_utils
+from util.threading_logic import pool_logic as pool
 from time import sleep, time
 import threading
-import queue
 
 import logging 
 logging.basicConfig(level=logging.INFO)
@@ -59,7 +59,7 @@ def api_method_is_called(step,apiCall,nodeName):
 
 #This method is identical to the method above, but creates a new thread
 @step(r'"([^"]+)" is called in parallel on "([^"]+)" with:')
-def threaded_call(step,apiCall,node):
+def threaded_call(step,apiCall, node):
     logger.info("Creating thread for {}".format(apiCall))
     world.config['apiCall'] = apiCall
     world.config['nodeId'] = node
@@ -69,24 +69,18 @@ def threaded_call(step,apiCall,node):
     api_utils.prepare_options(arg_list, options)
     api = api_utils.prepare_api_call(node)
 
-    def make_call(api,options,q):
+    def make_call(api,options,responses):
         response = api_utils.fetch_call(apiCall, api, options)
-        responses = q.get()
         responses[apiCall] = {}
         responses[apiCall][node] = response
         return response
 
-    q = queue.Queue()
-    q.put(world.responses)
-    new_thread = threading.Thread(target=make_call, args=(api,options,q))
-    new_thread.setDaemon(True)
-    new_thread.start()
+    args = (api,options,world.responses)
+    new_thread = pool.start_pool(make_call,1,args)
 
     if 'threads' not in world.config:
         world.config['threads'] = {}
-
     world.config['threads'][apiCall] = new_thread
-
 
 @step(r'we wait (\d+) seconds')
 def wait_for_step(step,time):
@@ -98,28 +92,31 @@ def wait_for_step(step,time):
 def compare_thread_return(step,apiCall):
     #Prepare response list for comparison
     logger.debug(world.responses)
-    response_list = world.responses[apiCall][world.config['nodeId']]
-    #Exclude duration from response list
-    if 'duration' in response_list:
-        del response_list['duration']
-    response_keys = response_list.keys()
 
-    #Prepare expected values list for comparison
-    expected_values = {}
-    args = step.hashes
-    api_utils.prepare_options(args,expected_values)
-    keys = expected_values.keys()
+    threads = world.config['threads'][apiCall]
+    for thread in threads:
+        response_list = pool.fetch_results(thread,1)
+        #Exclude duration from response list
+        if 'duration' in response_list:
+            del response_list['duration']
+        response_keys = response_list.keys()
 
-    #Confirm that the lists are of equal length before comparing
-    assert len(keys) == len(response_keys), 'Response: {} does not contain the same number of arguments: {}'.format(keys,response_keys)
+        #Prepare expected values list for comparison
+        expected_values = {}
+        args = step.hashes
+        api_utils.prepare_options(args,expected_values)
+        keys = expected_values.keys()
 
-    for count in range(len(keys)):
-        response_key = response_keys[count]
-        response_value = response_list[response_key]
-        expected_value = expected_values[response_key]
+        #Confirm that the lists are of equal length before comparing
+        assert len(keys) == len(response_keys), 'Response: {} does not contain the same number of arguments: {}'.format(keys,response_keys)
 
-        assert response_value == expected_value, \
-            'Returned: {} does not match the expected value: {}'.format(response_value,expected_value)
+        for count in range(len(keys)):
+            response_key = response_keys[count]
+            response_value = response_list[response_key]
+            expected_value = expected_values[response_key]
+
+            assert response_value == expected_value, \
+                'Returned: {} does not match the expected value: {}'.format(response_value,expected_value)
 
     logger.info('Responses match')
 
@@ -492,5 +489,5 @@ def check_neighbors(step):
                     containsNeighbor[1] = True  
     
     return containsNeighbor
-     
-    
+
+
