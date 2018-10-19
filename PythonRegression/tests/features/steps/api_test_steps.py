@@ -103,9 +103,16 @@ def compare_thread_return(step,apiCall):
         response_keys = response_list.keys()
 
         '''
-        Prepares gherkin table based key dictionary for comparison with response values. 
-        Takes the key and value from the table and places it in a dictionary with the appropriate value type. 
-        Further on this above.
+        Api Utility method: prepare_options
+        Prepares gherkin table based key dictionary for comparison with response values. Converts values to 
+        appropriate format. 
+        
+        Arguments:
+        args                -The gherkin table arguments from the feature file 
+        optionsList         -The list dictionary that the arguments will be placed into
+        
+        Return:
+        filledOptionList    -A filled list of options with appropriately converted types from the gherkin arguments 
         '''
         expected_values = {}
         api_utils.prepare_options(step.hashes,expected_values)
