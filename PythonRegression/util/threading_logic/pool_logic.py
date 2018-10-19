@@ -6,7 +6,7 @@ logger = logging.getLogger(__name__)
 
 def start_pool(function,iterations,args):
     #Assigns the process worker pool to either the cpu count or the number of nodes for the call, whichever is lower
-    pool = Pool(processes=len(args) if len(args) <= mp.cpu_count() else mp.cpu_count())
+    pool = Pool(processes=len(args))
     future_results = []
     iteration = 0
     while iteration < int(iterations):
