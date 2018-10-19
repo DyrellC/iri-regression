@@ -78,11 +78,12 @@ def threaded_call(step,apiCall,node):
     args = {node: {'api': api,'options': options,'responses': world.responses}}
     future_results = pool.start_pool(make_call,1,args)
 
-    if 'threads' not in world.config:
-        world.config['threads'] = {}
-    world.config['threads'][apiCall] = future_results
+    if 'future_results' not in world.config:
+        world.config['future_results'] = {}
+    world.config['future_results'][apiCall] = future_results
 
-@step(r'we wait (\d+) seconds')
+
+@step(r'we wait "(\d+)" second/seconds')
 def wait_for_step(step,time):
     logger.info('Waiting for {} seconds'.format(time))
     sleep(int(time))
@@ -92,7 +93,7 @@ def wait_for_step(step,time):
 def compare_thread_return(step,apiCall):
     #Prepare response list for comparison
     logger.debug(world.responses)
-    future_results = world.config['threads'][apiCall]
+    future_results = world.config['future_results'][apiCall]
 
     for result in future_results:
         response_list = pool.fetch_results(result,1)
