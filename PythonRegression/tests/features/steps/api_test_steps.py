@@ -17,7 +17,7 @@ world.responses = {}
 
 
 
-'''
+"""
 This is the general api calling function. There are 3 inputs
 
 @param apiCAll:     The api call that will be requested
@@ -37,7 +37,7 @@ This is the general api calling function. There are 3 inputs
         responseList:   Same as responseValue, ecept it places the results into a list
         bool:           Bool argument, returns True or False
  
-'''
+"""
 @step(r'"([^"]+)" is called on "([^"]+)" with:')
 def api_method_is_called(step,apiCall,nodeName):
     logger.info('%s is called on %s',apiCall,nodeName)
@@ -90,35 +90,23 @@ def wait_for_step(step,time):
 
 @step(r'the "([^"]+)" parallel call should return with:')
 def compare_thread_return(step,apiCall):
-    #Prepare response list for comparison
+    """Prepare response list for comparison"""
     logger.debug(world.responses)
     future_results = world.config['future_results'][apiCall]
 
     for result in future_results:
         response_list = pool.fetch_results(result,1)
 
-        #Exclude duration from response list
+        '''Exclude duration from response list'''
         if 'duration' in response_list:
             del response_list['duration']
         response_keys = response_list.keys()
 
-        '''
-        Api Utility method: prepare_options
-        Prepares gherkin table based key dictionary for comparison with response values. Converts values to 
-        appropriate format. 
-        
-        Arguments:
-        args                -The gherkin table arguments from the feature file 
-        optionsList         -The list dictionary that the arguments will be placed into
-        
-        Return:
-        filledOptionList    -A filled list of options with appropriately converted types from the gherkin arguments 
-        '''
         expected_values = {}
         api_utils.prepare_options(step.hashes,expected_values)
         keys = expected_values.keys()
 
-        #Confirm that the lists are of equal length before comparing
+        '''Confirm that the lists are of equal length before comparing'''
         assert len(keys) == len(response_keys), 'Response: {} does not contain the same number of arguments: {}'.format(keys,response_keys)
 
         for count in range(len(keys)):
