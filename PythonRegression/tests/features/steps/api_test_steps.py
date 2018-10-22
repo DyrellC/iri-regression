@@ -120,6 +120,7 @@ def compare_thread_return(step,apiCall):
 
 @step(r'GTTA is called (\d+) times on all nodes')
 def spam_call_gtta(step,numTests):
+    """Spams getTransactionsToApprove calls a number of times among available nodes in a cluster"""
     start = time()
     node = next(iter(world.machine['nodes']))
     apiCall = 'getTransactionsToApprove'
