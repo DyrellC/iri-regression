@@ -17,30 +17,28 @@ world.config = {}
 world.responses = {}
 
 
-
-"""
-This is the general api calling function. There are 3 inputs
-
-@param apiCAll:     The api call that will be requested
-@param nodeName:    The name identifying the node you would like to make this request on
-@param table:       A gherkin table outlining any arguments needed for the call
-                    (See tests/features/machine1/1_api+tests.feature for examples) 
-
-    The table parameter is unique in that there are several input types available depending on the call
-    being made. 
-    Types:
-        string:         Basic string argument, will be taken as is
-        int:            Basic integer argument, will be converted to int before call is made
-        nodeAddress:    Node name identifier, will create address from node configuration 
-        staticValue:    Static name identifier, will fetch value from util/static_vals.py 
-        staticList:     Same as staticValue, except it places the results into a list 
-        responseValue:  Identifier for api call response value
-        responseList:   Same as responseValue, ecept it places the results into a list
-        bool:           Bool argument, returns True or False
- 
-"""
 @step(r'"([^"]+)" is called on "([^"]+)" with:')
 def api_method_is_called(step,apiCall,nodeName):
+    """
+    This is the general api calling function. There are 3 inputs
+
+    :param apiCAll:     The api call that will be requested
+    :param nodeName:    The name identifying the node you would like to make this request on
+    :param table:       A gherkin table outlining any arguments needed for the call
+                        (See tests/features/machine1/1_api+tests.feature for examples)
+
+        The table parameter is unique in that there are several input types available depending on the call
+        being made.
+            :type string: Basic string argument, will be taken as is
+            :type int: Basic integer argument, will be converted to int before call is made
+            :type nodeAddress: Node name identifier, will create address from node configuration
+            :type staticValue: Static name identifier, will fetch value from util/static_vals.py
+            :type staticList: Same as staticValue, except it places the results into a list
+            :type responseValue: Identifier for api call response value
+            :type responseList: Same as responseValue, ecept it places the results into a list
+            :type bool: Bool argument, returns True or False
+
+    """
     logger.info('%s is called on %s',apiCall,nodeName)
     world.config['apiCall'] = apiCall
     world.config['nodeId'] = nodeName
@@ -98,7 +96,7 @@ def compare_thread_return(step,apiCall):
     for result in future_results:
         response_list = pool.fetch_results(result,1)
 
-        '''Exclude duration from response list'''
+        # Exclude duration from response list
         if 'duration' in response_list:
             del response_list['duration']
         response_keys = response_list.keys()
@@ -107,7 +105,7 @@ def compare_thread_return(step,apiCall):
         api_utils.prepare_options(step.hashes,expected_values)
         keys = expected_values.keys()
 
-        '''Confirm that the lists are of equal length before comparing'''
+        # Confirm that the lists are of equal length before comparing
         assert len(keys) == len(response_keys), 'Response: {} does not contain the same number of arguments: {}'.format(keys,response_keys)
 
         for count in range(len(keys)):
